@@ -23,11 +23,14 @@ public class DetailActivity extends AppCompatActivity {
         mPrice = (TextView) findViewById(R.id.tv_price);
         mDetails = (TextView) findViewById(R.id.tv_details);
 
+        String temp = "dfsd";
+
         Intent intentThatStartedThisActivity = getIntent();
 
         if(intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)){
             String dataOfPart = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT);
             String partName = null;
+
             String partPrice = null;
             String partDetails = null;
             try {
