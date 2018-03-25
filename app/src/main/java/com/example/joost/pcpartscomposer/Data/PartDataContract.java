@@ -8,10 +8,10 @@ import android.provider.BaseColumns;
 
 public final class PartDataContract {
 
-    private FeedReaderContract() {}
+    private PartDataContract() {}
 
-    public static class FeedEntry implements BaseColumns{
-        public static final String TABLE_NAME = "entry";
+    public static final class PartDataEntry implements BaseColumns{
+        public static final String TABLE_NAME = "Data";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_PRICE = "price";
         public static final String COLUMN_DETAILS = "details";
