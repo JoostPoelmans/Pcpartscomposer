@@ -3,6 +3,7 @@ package com.example.joost.pcpartscomposer;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Network;
 import android.net.Uri;
 import android.nfc.Tag;
@@ -17,6 +18,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.joost.pcpartscomposer.Data.PartDataContract;
+import com.example.joost.pcpartscomposer.Data.PartDataDbHelper;
+import com.example.joost.pcpartscomposer.Data.TestUtil;
 import com.example.joost.pcpartscomposer.utilities.NetworkUtils;
 
 import org.json.JSONArray;
@@ -35,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
     private TextView mErrorMessageDisplay;
     private Toast mToast;
+
+    private SQLiteDatabase mDb;
 
     //voorbeeld van logging
     private static final String TAG = "MainActivity";
@@ -57,12 +63,36 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         mRecyclerView.setHasFixedSize(true);
 
-        mPartsListAdapter = new PartsListAdapter(this);
+        PartDataDbHelper dbHelper = new PartDataDbHelper(this);
+        mDb = dbHelper.getWritableDatabase();
+        TestUtil.insertFakeData(mDb);
+
+        Cursor cursor = getAllData();
+
+        cursor.moveToFirst();
+
+        String test = cursor.getString(cursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_NAME));
+
+
+        mPartsListAdapter = new PartsListAdapter(this, cursor);
 
         mRecyclerView.setAdapter(mPartsListAdapter);
 
         showPartsData();
-        makeMockSearchQuery();
+        //makeMockSearchQuery();
+    }
+
+    private Cursor getAllData() {
+        return mDb.query(
+                PartDataContract.PartDataEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PartDataContract.PartDataEntry.COLUMN_NAME
+        );
+
     }
 
     private void showPartsData() {

@@ -1,12 +1,15 @@
 package com.example.joost.pcpartscomposer;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.joost.pcpartscomposer.Data.PartDataContract;
 import com.example.joost.pcpartscomposer.utilities.NetworkUtils;
 
 import org.json.JSONArray;
@@ -22,14 +25,19 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
     private String[] mPartsData;
     private String partResponse;
     private JSONArray partArray;
+    private Cursor mCursor;
+    private static final String TAG_HOLDER = "OnBindViewHolder";
+    private static final String TAG_GET_ITEM_COUNT = "getItemCount";
+
     private final PartsListAdapterOnClickHandler mClickHandler;
 
     public interface PartsListAdapterOnClickHandler {
         void onListClick(String partData, String dataOfPart);
     }
     // COMPLETED (47) Create the default constructor (we will pass in parameters in a later lesson)
-    public PartsListAdapter(PartsListAdapterOnClickHandler ClickHandler) {
+    public PartsListAdapter(PartsListAdapterOnClickHandler ClickHandler, Cursor cursor) {
         mClickHandler = ClickHandler;
+        mCursor = cursor;
     }
 
     // COMPLETED (16) Create a class within ForecastAdapter called ForecastAdapterViewHolder
@@ -110,31 +118,41 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
     public void onBindViewHolder(PartsListAdapterViewHolder partsListAdapterViewHolder, int position) {
 
 
-        try {
-            String result = partResponse.replace("\r", "").replace("\n)", "");
+//        try {
+//            String result = partResponse.replace("\r", "").replace("\n)", "");
+//
+//            partArray = new JSONArray(result);
+//            //String[] parsedPartsData = new String[partArray.length()];
+//            String[] mPartNameData = new String[partArray.length()];
+//            String[] mPartsPrices = new String[partArray.length()];
+//            for(int i = 0; i<partArray.length();i++ ){
+//
+//                JSONObject part = partArray.getJSONObject(i);
+//                String partName = part.getString("name");
+//                mPartNameData[i] = partName;
+//                mPartsPrices[i] = part.getString("price");
+//
+//            }
+//            mPartsData = mPartNameData;
+//            String partData = mPartNameData[position];
+//            partsListAdapterViewHolder.mPartTextView.setText(partData);
+//            String partPrice = mPartsPrices[position];
+//            partsListAdapterViewHolder.mPartPriceTextView.setText("€" + partPrice);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
-            partArray = new JSONArray(result);
-            //String[] parsedPartsData = new String[partArray.length()];
-            String[] mPartNameData = new String[partArray.length()];
-            String[] mPartsPrices = new String[partArray.length()];
-            for(int i = 0; i<partArray.length();i++ ){
-
-                JSONObject part = partArray.getJSONObject(i);
-                String partName = part.getString("name");
-                mPartNameData[i] = partName;
-                mPartsPrices[i] = part.getString("price");
-
-            }
-            mPartsData = mPartNameData;
-            String partData = mPartNameData[position];
-            partsListAdapterViewHolder.mPartTextView.setText(partData);
-            String partPrice = mPartsPrices[position];
-            partsListAdapterViewHolder.mPartPriceTextView.setText("€" + partPrice);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(!mCursor.moveToPosition(position)) {
+            Log.v(TAG_HOLDER, "no data or out of bounds of the cursor");
+            return;
         }
 
+        String name = mCursor.getString(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_NAME));
+        int price = mCursor.getInt(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_PRICE));
+        //String details = mCursor.getString(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_DETAILS));
+        partsListAdapterViewHolder.mPartTextView.setText(String.valueOf(name));
+        partsListAdapterViewHolder.mPartPriceTextView.setText(String.valueOf(price));
     }
 
 
@@ -151,7 +169,10 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
      */
     @Override
     public int getItemCount() {
-        if (null == partResponse) return 0;
+        Log.v(TAG_GET_ITEM_COUNT, String.valueOf(mCursor.getCount()));
+        return mCursor.getCount();
+
+        /*if (null == partResponse) return 0;
         JSONArray partArray;
         try {
             partArray = new JSONArray(partResponse);
@@ -160,6 +181,7 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
             e.printStackTrace();
         }
         return 0;
+        */
     }
 
     // COMPLETED (31) Create a setWeatherData method that saves the weatherData to mWeatherData
