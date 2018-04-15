@@ -32,7 +32,7 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
     private final PartsListAdapterOnClickHandler mClickHandler;
 
     public interface PartsListAdapterOnClickHandler {
-        void onListClick(String partData, String dataOfPart);
+        void onListClick(int adapterPosition, Cursor mCursor);
     }
     // COMPLETED (47) Create the default constructor (we will pass in parameters in a later lesson)
     public PartsListAdapter(PartsListAdapterOnClickHandler ClickHandler, Cursor cursor) {
@@ -62,17 +62,7 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            String partData = mPartsData[adapterPosition];
-            String dataOfPart = null;
-            try {
-                JSONObject part = partArray.getJSONObject(adapterPosition);
-                dataOfPart = part.toString();
-                mClickHandler.onListClick(partData, dataOfPart);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
+            mClickHandler.onListClick(adapterPosition, mCursor);
         }
         // Within PartListAdapterViewHolder ///////////////////////////////////////////////////////
     }
@@ -152,7 +142,7 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
         int price = mCursor.getInt(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_PRICE));
         //String details = mCursor.getString(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_DETAILS));
         partsListAdapterViewHolder.mPartTextView.setText(String.valueOf(name));
-        partsListAdapterViewHolder.mPartPriceTextView.setText(String.valueOf(price));
+        partsListAdapterViewHolder.mPartPriceTextView.setText("€" + String.valueOf(price));
     }
 
 
@@ -191,10 +181,10 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
      * created one. This is handy when we get new data from the web but don't want to create a
      * new ForecastAdapter to display it.
      *
-     * @param PartsData The new weather data to be displayed.
+     * @param cursor The new data to be displayed.
      */
-    public void setPartsData(String PartsData) {
-        partResponse = PartsData;
+    public void setPartsData(Cursor cursor) {
+        mCursor = cursor;
         notifyDataSetChanged();
     }
 }

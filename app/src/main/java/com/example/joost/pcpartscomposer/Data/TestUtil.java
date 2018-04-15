@@ -3,6 +3,7 @@ package com.example.joost.pcpartscomposer.Data;
 import android.content.ContentValues;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,27 +20,31 @@ public class TestUtil {
         ContentValues cv = new ContentValues();
         cv.put(PartDataContract.PartDataEntry.COLUMN_NAME, "CPU");
         cv.put(PartDataContract.PartDataEntry.COLUMN_PRICE, 200);
-        cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
+        //cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
         list.add(cv);
 
         cv = new ContentValues();
         cv.put(PartDataContract.PartDataEntry.COLUMN_NAME, "GPU");
         cv.put(PartDataContract.PartDataEntry.COLUMN_PRICE, 300);
+        cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
         list.add(cv);
 
         cv = new ContentValues();
         cv.put(PartDataContract.PartDataEntry.COLUMN_NAME, "Harddrive");
         cv.put(PartDataContract.PartDataEntry.COLUMN_PRICE, 99);
+        cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
         list.add(cv);
 
         cv = new ContentValues();
         cv.put(PartDataContract.PartDataEntry.COLUMN_NAME, "CPU");
         cv.put(PartDataContract.PartDataEntry.COLUMN_PRICE, 200);
+        cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
         list.add(cv);
 
         cv = new ContentValues();
         cv.put(PartDataContract.PartDataEntry.COLUMN_NAME, "GPU");
         cv.put(PartDataContract.PartDataEntry.COLUMN_PRICE, 400);
+        cv.put(PartDataContract.PartDataEntry.COLUMN_DETAILS, "test123");
         list.add(cv);
 
         //insert all guests in one transaction
@@ -52,6 +57,8 @@ public class TestUtil {
             for(ContentValues c:list){
                 db.insert(PartDataContract.PartDataEntry.TABLE_NAME, null, c);
             }
+
+            Log.v("testing", db.toString());
             db.setTransactionSuccessful();
         }
         catch (SQLException e) {

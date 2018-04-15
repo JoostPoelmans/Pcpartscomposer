@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.example.joost.pcpartscomposer.Data.PartDataContract;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,24 +28,14 @@ public class DetailActivity extends AppCompatActivity {
         String temp = "dfsd";
 
         Intent intentThatStartedThisActivity = getIntent();
+        final int defaultvalue = 0;
+        if(intentThatStartedThisActivity.hasExtra("name") && intentThatStartedThisActivity.hasExtra("price")){
+            String partName = intentThatStartedThisActivity.getStringExtra(PartDataContract.PartDataEntry.COLUMN_NAME);
+            String partPrice = String.valueOf(intentThatStartedThisActivity.getIntExtra(PartDataContract.PartDataEntry.COLUMN_PRICE, defaultvalue));
+            String partDetails = intentThatStartedThisActivity.getStringExtra(PartDataContract.PartDataEntry.COLUMN_DETAILS);
 
-        if(intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)){
-            String dataOfPart = intentThatStartedThisActivity.getStringExtra(Intent.EXTRA_TEXT);
-            String partName = null;
-
-            String partPrice = null;
-            String partDetails = null;
-            try {
-                JSONObject dataOfPartInJSON = new JSONObject(dataOfPart);
-                partName = dataOfPartInJSON.getString("name");
-                partPrice = dataOfPartInJSON.getString("price");
-                partDetails = dataOfPartInJSON.getString("details");
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
             mName.setText(partName);
-            mPrice.setText(partPrice);
+            mPrice.setText("€" + partPrice);
             mDetails.setText(partDetails);
 
         }

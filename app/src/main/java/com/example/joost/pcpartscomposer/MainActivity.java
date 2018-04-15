@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Network;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,22 +12,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.joost.pcpartscomposer.Data.DataUtil;
 import com.example.joost.pcpartscomposer.Data.PartDataContract;
 import com.example.joost.pcpartscomposer.Data.PartDataDbHelper;
 import com.example.joost.pcpartscomposer.Data.TestUtil;
 import com.example.joost.pcpartscomposer.utilities.NetworkUtils;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements PartsListAdapter.PartsListAdapterOnClickHandler {
@@ -41,9 +34,12 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     private Toast mToast;
 
     private SQLiteDatabase mDb;
+    private String jsonData;
+    private static final String TAG_ON_LIST_CLICK = "OnListClick";
 
     //voorbeeld van logging
     private static final String TAG = "MainActivity";
+    private static final String TAG_RESPONSE = "ResponseFromHttpUrl";
     //optioneel private ProgressBar mLoadingIndicator;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,21 +61,18 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         PartDataDbHelper dbHelper = new PartDataDbHelper(this);
         mDb = dbHelper.getWritableDatabase();
+
         TestUtil.insertFakeData(mDb);
 
         Cursor cursor = getAllData();
-
-        cursor.moveToFirst();
-
-        String test = cursor.getString(cursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_NAME));
-
 
         mPartsListAdapter = new PartsListAdapter(this, cursor);
 
         mRecyclerView.setAdapter(mPartsListAdapter);
 
         showPartsData();
-        //makeMockSearchQuery();
+        makeMockSearchQuery();
+
     }
 
     private Cursor getAllData() {
@@ -90,7 +83,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
                 null,
                 null,
                 null,
-                PartDataContract.PartDataEntry.COLUMN_NAME
+                null
+                //PartDataContract.PartDataEntry.COLUMN_NAME
         );
 
     }
@@ -101,16 +95,29 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     }
 
     @Override
-    public void onListClick(String partData, String dataOfPart) {
+    public void onListClick(int adapterPosition, Cursor mCursor) {
 //        if(mToast != null){
 //            mToast.cancel();
 //        }
 //        Context context = this;
 //        mToast = Toast.makeText(context, partData, Toast.LENGTH_SHORT);
 //        mToast.show();
+        if(!mCursor.moveToPosition(adapterPosition)) {
+            Log.i(TAG_ON_LIST_CLICK, "no data or out of bounds of the cursor");
+            return;
+        }
+
+
+
         Context context = MainActivity.this;
         Intent intent = new Intent(context , DetailActivity.class);
-        intent.putExtra(Intent.EXTRA_TEXT,dataOfPart);
+
+        String name = mCursor.getString(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_NAME));
+        int price = mCursor.getInt(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_PRICE));
+        intent.putExtra(PartDataContract.PartDataEntry.COLUMN_NAME,name);
+        intent.putExtra(PartDataContract.PartDataEntry.COLUMN_PRICE,price);
+        String details = mCursor.getString(mCursor.getColumnIndex(PartDataContract.PartDataEntry.COLUMN_DETAILS));
+        intent.putExtra(PartDataContract.PartDataEntry.COLUMN_DETAILS,details);
         startActivity(intent);
     }
 
@@ -155,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
                         .getResponseFromHttpUrl(searchURL);
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.i(TAG_RESPONSE, "Exception at Http Response");
+
             }
             return jsonResponse;
         }
@@ -165,9 +174,13 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
             if (partData != null) {
                 showPartsData();
                 //mTest.setText(partData);
-                mPartsListAdapter.setPartsData(partData);
+                jsonData = partData;
+                DataUtil.saveToDataBase(mDb, jsonData);
+                mPartsListAdapter.setPartsData(getAllData());
+                //mPartsListAdapter.setPartsData(partData);
+                //Log.i("testing", jsonData);
             } else {
-                showErrorMessage();
+                showErrorMessage(); //mogelijk met met controle of er ook database is annders dan errormessage
             }
         }
 
