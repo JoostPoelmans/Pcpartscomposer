@@ -16,6 +16,7 @@
         android:text="details will be shown"
         android:textSize="20sp" />
 
+
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"

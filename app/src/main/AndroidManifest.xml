@@ -11,17 +11,24 @@
         android:roundIcon="@mipmap/ic_launcher_pc_parts_composer_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".SplashScreen"
+            android:theme="@style/AppTheme2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailActivity">
-
-
+        <activity android:name=".MainActivity">
         </activity>
+        <activity
+            android:name=".DetailActivity"
+            android:label="@string/details">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity
+            android:name=".ConfigActivity"
+            android:theme="@style/AppTheme2"/>
     </application>
-
 </manifest>

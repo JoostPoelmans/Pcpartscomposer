@@ -1,6 +1,7 @@
 package com.example.joost.pcpartscomposer.Data;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -41,4 +42,6 @@ public class PartDataDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + PartDataContract.PartDataEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
+
+
 }

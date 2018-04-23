@@ -4,4 +4,10 @@
     <string name="error_message">
         An error has occurred. Please try again by clicking REFRESH
     </string>
+    <string name="config">Settings</string>
+    <string name="details">Details</string>
+
+    <string name="pref_sort_by_key">Sort by</string>
+    <string name="pref_sort_by_default">0</string>
+
 </resources>

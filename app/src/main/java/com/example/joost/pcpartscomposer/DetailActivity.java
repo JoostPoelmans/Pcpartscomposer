@@ -25,8 +25,6 @@ public class DetailActivity extends AppCompatActivity {
         mPrice = (TextView) findViewById(R.id.tv_price);
         mDetails = (TextView) findViewById(R.id.tv_details);
 
-        String temp = "dfsd";
-
         Intent intentThatStartedThisActivity = getIntent();
         final int defaultvalue = 0;
         if(intentThatStartedThisActivity.hasExtra("name") && intentThatStartedThisActivity.hasExtra("price")){

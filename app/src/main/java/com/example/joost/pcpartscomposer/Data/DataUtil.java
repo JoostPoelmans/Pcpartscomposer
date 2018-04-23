@@ -1,9 +1,15 @@
 package com.example.joost.pcpartscomposer.Data;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.example.joost.pcpartscomposer.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,6 +19,8 @@ import java.util.List;
 
 public class DataUtil {
 
+    private static SQLiteDatabase mDb;
+    private static PartDataDbHelper dbHelper;
 
 
     public static void saveToDataBase(SQLiteDatabase db, String dataResponse){
@@ -75,6 +83,87 @@ public class DataUtil {
         {
             db.endTransaction();
         }
+
+    }
+
+    public static Cursor getCursorFromDataBase(Context context){
+        dbHelper = new PartDataDbHelper(context);
+        mDb = dbHelper.getReadableDatabase();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String sortBy = prefs.getString(context.getString(R.string.pref_sort_by_key), context.getString(R.string.pref_sort_by_default));
+        Cursor value;
+        switch(sortBy){
+            case "0":
+                value = sortAlphabetical();
+                break;
+            case "1":
+                value = sortByHighestPrice();
+                break;
+            case "2":
+                value = sortByLowestPrice();
+                break;
+            default:
+                value = getAllData();
+                break;
+        }
+        return value;
+
+
+    }
+
+    /**sorts alphabetical
+     *
+     * @return cursor of data
+     */
+    public static Cursor sortAlphabetical(){
+        return mDb.query(
+                PartDataContract.PartDataEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PartDataContract.PartDataEntry.COLUMN_NAME
+        );
+
+    }
+    public static Cursor sortByHighestPrice(){
+        return mDb.query(
+                PartDataContract.PartDataEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PartDataContract.PartDataEntry.COLUMN_PRICE+" DESC"
+        );
+
+    }
+    public static Cursor sortByLowestPrice(){
+        return mDb.query(
+                PartDataContract.PartDataEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                PartDataContract.PartDataEntry.COLUMN_PRICE+" ASC"
+        );
+
+    }
+    public static Cursor getAllData() {
+        return mDb.query(
+                PartDataContract.PartDataEntry.TABLE_NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null
+                //PartDataContract.PartDataEntry.COLUMN_NAME
+        );
 
     }
 }
