@@ -7,4 +7,13 @@
         android:key="@string/pref_sort_by_key"
         android:title="@string/pref_sort_by_key"
         android:summary="%s"/>
+    <SeekBarPreference
+        android:key="@string/max_price"
+        android:title="@string/max_price"
+        android:max="1000"
+        android:defaultValue="1000"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:thumbOffset="8dp"
+        />
 </PreferenceScreen>

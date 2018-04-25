@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#FF5A00</color>
+    <color name="colorPrimaryDark">#DD4E00</color>
     <color name="colorAccent">#FF4081</color>
     <color name="golden">#FFDF00</color>
     <color name="silver">#C0C0C0</color>
@@ -9,4 +9,6 @@
     <color name="wood">#663300</color>
     <color name="plastic">#C2DFFF</color>
     <color name="white">#FFFFFF</color>
+    <color name="colorPrimaryOld">#3F51B5</color>
+    <color name="colorPrimaryDarkOld">#303F9F</color>
 </resources>

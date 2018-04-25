@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         PartDataDbHelper dbHelper = new PartDataDbHelper(this);
         mDb = dbHelper.getWritableDatabase();
 
-        TestUtil.insertFakeData(mDb);
+        //TestUtil.insertFakeData(mDb);
 
         setupSharedPreferences();
 
@@ -82,9 +84,25 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         mRecyclerView.setAdapter(mPartsListAdapter);
 
         showPartsData();
-        makeMockSearchQuery();
 
+        if(isNetworkAvailable()){
+          makeMockSearchQuery();
+        }
+        else{
+            if(mToast != null){
+                mToast.cancel();
+            }
+            Context context = this;
+            mToast = Toast.makeText(context, R.string.no_internet, Toast.LENGTH_LONG);
+            mToast.show();
+        }
+    }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private void setupSharedPreferences() {
@@ -222,15 +240,12 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         @Override
         protected void onPostExecute(String partData) {
-            //mLoadingIndicator.setVisibility(View.INVISIBLE);
             if (partData != null) {
                 showPartsData();
                 //mTest.setText(partData);
                 jsonData = partData;
                 DataUtil.saveToDataBase(mDb, jsonData);
-                mPartsListAdapter.setPartsData(DataUtil.getCursorFromDataBase(MainActivity.this));
-                //mPartsListAdapter.setPartsData(partData);
-                //Log.i("testing", jsonData);
+                mPartsListAdapter.swapCursor(DataUtil.getCursorFromDataBase(MainActivity.this));
             } else {
                 showErrorMessage(); //mogelijk met met controle of er ook database is annders dan errormessage
             }

@@ -23,7 +23,7 @@
         app:ringColor="@color/golden"
         app:ringProgressColor="@color/colorPrimaryDark"
         app:ringWidth="3dp"
-        app:style="FILL"
+        app:style="STROKE"
         app:textColor="@color/colorPrimaryDark"
         app:textIsShow="true"
         app:textSize="16sp"

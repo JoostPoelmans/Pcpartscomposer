@@ -21,7 +21,9 @@ public class DataUtil {
 
     private static SQLiteDatabase mDb;
     private static PartDataDbHelper dbHelper;
-
+    private static final String TAG_DATABASE = "database";
+    private static String maxPrice;
+    private static String where;
 
     public static void saveToDataBase(SQLiteDatabase db, String dataResponse){
         if(db == null){
@@ -73,7 +75,7 @@ public class DataUtil {
                 db.insert(PartDataContract.PartDataEntry.TABLE_NAME, null, c);
             }
 
-            Log.v("testing", db.toString());
+            Log.v(TAG_DATABASE, db.toString());
             db.setTransactionSuccessful();
         }
         catch (SQLException e) {
@@ -93,6 +95,8 @@ public class DataUtil {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         String sortBy = prefs.getString(context.getString(R.string.pref_sort_by_key), context.getString(R.string.pref_sort_by_default));
+        maxPrice = String.valueOf(prefs.getInt(context.getString(R.string.max_price),Integer.valueOf(context.getString(R.string.max_price_default))));
+        where = PartDataContract.PartDataEntry.COLUMN_PRICE + " <= " + maxPrice;
         Cursor value;
         switch(sortBy){
             case "0":
@@ -121,7 +125,7 @@ public class DataUtil {
         return mDb.query(
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
-                null,
+                where,
                 null,
                 null,
                 null,
@@ -133,7 +137,7 @@ public class DataUtil {
         return mDb.query(
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
-                null,
+                where,
                 null,
                 null,
                 null,
@@ -145,7 +149,7 @@ public class DataUtil {
         return mDb.query(
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
-                null,
+                where,
                 null,
                 null,
                 null,

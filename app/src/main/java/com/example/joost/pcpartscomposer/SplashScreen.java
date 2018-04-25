@@ -22,14 +22,14 @@ public class SplashScreen extends AppCompatActivity {
         ringProgressBar = (RingProgressBar) findViewById(R.id.progress_bar);
 
 
-        int secondsDelayed = 2;
+        final int delay = 2000;
         new Handler().postDelayed(new Runnable() {
             public void run() {
                 Intent mainIntent = new Intent(SplashScreen.this,MainActivity.class);
                 startActivity(mainIntent);
                 finish();
             }
-        }, secondsDelayed * 1000);
+        }, delay);
 
         new Handler().postDelayed(new Runnable() {
 
@@ -44,7 +44,7 @@ public class SplashScreen extends AppCompatActivity {
             public void run() {
                 for(int i=0 ; i<100;i++){
                     try {
-                        Thread.sleep(20);
+                        Thread.sleep(delay/100);
                         ringProgressBar.setProgress(progress);
                         progress++;
                     } catch (InterruptedException e) {

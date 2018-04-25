@@ -2,12 +2,14 @@
     <string name="app_name">Pc parts composer</string>
 
     <string name="error_message">
-        An error has occurred. Please try again by clicking REFRESH
+        An error has occurred. Please try again.
     </string>
     <string name="config">Settings</string>
     <string name="details">Details</string>
 
     <string name="pref_sort_by_key">Sort by</string>
     <string name="pref_sort_by_default">0</string>
-
+    <string name="max_price">Maximum prijs</string>
+    <string name="max_price_default">1000</string>
+    <string name="no_internet">No internet, database has not been refreshed</string>
 </resources>
