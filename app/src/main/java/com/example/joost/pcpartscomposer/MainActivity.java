@@ -1,7 +1,9 @@
 package com.example.joost.pcpartscomposer;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -31,21 +33,28 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import io.netopen.hotbitmapgg.library.view.RingProgressBar;
+
+import static java.security.AccessController.getContext;
+
 public class MainActivity extends AppCompatActivity implements PartsListAdapter.PartsListAdapterOnClickHandler, SharedPreferences.OnSharedPreferenceChangeListener {
-    private RecyclerView mRecyclerView;
+    private static RecyclerView mRecyclerView;
 
-    private PartsListAdapter mPartsListAdapter;
+    private static PartsListAdapter mPartsListAdapter;
 
-    private TextView mErrorMessageDisplay;
+    private static TextView mErrorMessageDisplay;
     private Toast mToast;
 
-    private SQLiteDatabase mDb;
+    private static SQLiteDatabase mDb;
     private String jsonData;
     private static final String TAG_ON_LIST_CLICK = "OnListClick";
 
     //voorbeeld van logging
     private static final String TAG = "MainActivity";
     private static final String TAG_RESPONSE = "ResponseFromHttpUrl";
+    private static BroadcastReceiver receiver;
+    private static Context mContext;
+
     //optioneel private ProgressBar mLoadingIndicator;
 
     /**the method that is called when mainActivity needs to be created
@@ -55,9 +64,30 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setContentView(R.layout.activity_main);
         setContentView(R.layout.activity_main);
+        mContext = MainActivity.this;
         //logging
         Log.v(TAG, "mainActivity created");
+
+        setupSharedPreferences();
+
+        PartDataDbHelper dbHelper = new PartDataDbHelper(this);
+        mDb = dbHelper.getWritableDatabase();
+
+        if(isNetworkAvailable()){
+            makeMockSearchQuery();
+        }
+        else{
+            if(mToast != null){
+                mToast.cancel();
+            }
+            Context context = this;
+            mToast = Toast.makeText(context, R.string.no_internet, Toast.LENGTH_LONG);
+            mToast.show();
+        }
+
+        setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_parts);
 
@@ -70,12 +100,9 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         mRecyclerView.setHasFixedSize(true);
 
-        PartDataDbHelper dbHelper = new PartDataDbHelper(this);
-        mDb = dbHelper.getWritableDatabase();
 
         //TestUtil.insertFakeData(mDb);
 
-        setupSharedPreferences();
 
         Cursor cursor = DataUtil.getCursorFromDataBase(this);
 
@@ -83,19 +110,15 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         mRecyclerView.setAdapter(mPartsListAdapter);
 
+        //intentfilter for the reciever
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+
+        //register the reciever for connectionupdates
+        receiver = new ConnectivityChangeReceiver();
+        registerReceiver(receiver, filter);
+
         showPartsData();
 
-        if(isNetworkAvailable()){
-          makeMockSearchQuery();
-        }
-        else{
-            if(mToast != null){
-                mToast.cancel();
-            }
-            Context context = this;
-            mToast = Toast.makeText(context, R.string.no_internet, Toast.LENGTH_LONG);
-            mToast.show();
-        }
     }
 
     private boolean isNetworkAvailable() {
@@ -123,6 +146,18 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         // Unregister VisualizerActivity as an OnPreferenceChangedListener to avoid any memory leaks.
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
+        unregisterReceiver(receiver);
+    }
+    @Override
+    public void onPause() {
+        super.onPause();  // Always call the superclass method first
+        unregisterReceiver(receiver);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();  // Always call the superclass method first
+        registerReceiver(receiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -145,21 +180,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         return super.onOptionsItemSelected(item);
     }
 
-    private Cursor getAllData() {
-        return mDb.query(
-                PartDataContract.PartDataEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-                //PartDataContract.PartDataEntry.COLUMN_NAME
-        );
 
-    }
-
-    private void showPartsData() {
+    private static void showPartsData() {
        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
        mRecyclerView.setVisibility(View.VISIBLE);
     }
@@ -191,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         startActivity(intent);
     }
 
-    private void showErrorMessage() {
+    private static void showErrorMessage() {
         /* First, hide the currently visible data */
         mRecyclerView.setVisibility(View.INVISIBLE);
         /* Then, show the error */
@@ -199,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     }
 
     private void makeMockSearchQuery() {
-        String partsQuery = "http://www.mocky.io/v2/5ad724002e00006d00c93dd5";
+        String partsQuery = "http://www.mocky.io/v2/5ae050da3200006b00510b22";
         Uri uri = Uri.parse(partsQuery);
         try {
             URL mUrl = new URL(uri.toString());
@@ -210,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
     }
 
-    public class getDataTask extends AsyncTask<URL, Void, String> {
+    public static class getDataTask extends AsyncTask<URL, Void, String> {
 
         @Override
         protected void onPreExecute() {
@@ -243,9 +265,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
             if (partData != null) {
                 showPartsData();
                 //mTest.setText(partData);
-                jsonData = partData;
-                DataUtil.saveToDataBase(mDb, jsonData);
-                mPartsListAdapter.swapCursor(DataUtil.getCursorFromDataBase(MainActivity.this));
+                DataUtil.saveToDataBase(mDb, partData);
+                mPartsListAdapter.swapCursor(DataUtil.getCursorFromDataBase(mContext));
             } else {
                 showErrorMessage(); //mogelijk met met controle of er ook database is annders dan errormessage
             }

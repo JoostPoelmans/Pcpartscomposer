@@ -12,7 +12,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="monospace"
-        android:textSize="42sp"
+        android:textSize="28sp"
+        android:layout_marginRight="50dp"
         />
 
     <TextView
@@ -28,13 +29,17 @@
         android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="12sp"
-        android:visibility="visible" />
+        android:visibility="visible"
+        android:layout_alignParentBottom="true"
+        />
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:background="#dadada"
-        android:layout_below="@+id/tv_item_part"/>
+        android:layout_below="@+id/tv_item_part"
+        android:layout_alignParentBottom="true"/>
    </RelativeLayout>
 </FrameLayout>
