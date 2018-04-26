@@ -3,6 +3,7 @@ package com.example.joost.pcpartscomposer;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -18,23 +19,16 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, final Intent intent) {
-        if(checkInternet(context)){
+        if(checkInternet(context) && MainActivity.isLoadStatus()){
+            MainActivity.makeMockSearchQuery();
             Toast.makeText(context, "Network Available Refreshing database",Toast.LENGTH_LONG).show();
-            String partsQuery = "http://www.mocky.io/v2/5ae0c6d33200002a00510d2c";
-            Uri uri = Uri.parse(partsQuery);
-
-            URL mUrl = null;
-            try {
-                mUrl = new URL(uri.toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            new MainActivity.getDataTask().execute(mUrl);
-            //new MainActivity.getDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mUrl);
+            MainActivity.setLoadStatus(false);
         }
         if(!checkInternet(context)){
             Toast.makeText(context, "Network Not Available",Toast.LENGTH_LONG).show();
+            MainActivity.setLoadStatus(true);
         }
+
     }
 
     boolean checkInternet(Context context) {

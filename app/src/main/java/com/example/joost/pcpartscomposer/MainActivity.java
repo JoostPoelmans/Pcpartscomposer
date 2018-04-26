@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
@@ -53,7 +54,12 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     private static final String TAG = "MainActivity";
     private static final String TAG_RESPONSE = "ResponseFromHttpUrl";
     private static BroadcastReceiver receiver;
+
+
+
     private static Context mContext;
+
+    private static boolean loadStatus = false;
 
     //optioneel private ProgressBar mLoadingIndicator;
 
@@ -74,18 +80,6 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         PartDataDbHelper dbHelper = new PartDataDbHelper(this);
         mDb = dbHelper.getWritableDatabase();
-
-        if(isNetworkAvailable()){
-            makeMockSearchQuery();
-        }
-        else{
-            if(mToast != null){
-                mToast.cancel();
-            }
-            Context context = this;
-            mToast = Toast.makeText(context, R.string.no_internet, Toast.LENGTH_LONG);
-            mToast.show();
-        }
 
         setContentView(R.layout.activity_main);
 
@@ -118,14 +112,6 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         registerReceiver(receiver, filter);
 
         showPartsData();
-
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private void setupSharedPreferences() {
@@ -181,6 +167,18 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
     }
 
 
+    public static boolean isLoadStatus() {
+        return loadStatus;
+    }
+
+    public static void setLoadStatus(boolean loadStatus) {
+        MainActivity.loadStatus = loadStatus;
+    }
+
+    public static Context getmContext() {
+        return mContext;
+    }
+
     private static void showPartsData() {
        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
        mRecyclerView.setVisibility(View.VISIBLE);
@@ -198,8 +196,6 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
             Log.i(TAG_ON_LIST_CLICK, "no data or out of bounds of the cursor");
             return;
         }
-
-
 
         Context context = MainActivity.this;
         Intent intent = new Intent(context , DetailActivity.class);
@@ -220,8 +216,8 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         mErrorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
-    private void makeMockSearchQuery() {
-        String partsQuery = "http://www.mocky.io/v2/5ae050da3200006b00510b22";
+    public static void makeMockSearchQuery() {
+        String partsQuery = getmContext().getString(R.string.url);
         Uri uri = Uri.parse(partsQuery);
         try {
             URL mUrl = new URL(uri.toString());

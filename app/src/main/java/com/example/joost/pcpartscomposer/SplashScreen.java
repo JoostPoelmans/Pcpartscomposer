@@ -57,14 +57,6 @@ public class SplashScreen extends AppCompatActivity {
         if(isNetworkAvailable()){
             makeMockSearchQueryWhileLoading();
         }
-        else{
-            if(mToast != null){
-                mToast.cancel();
-            }
-            Context context = this;
-            mToast = Toast.makeText(context, R.string.no_internet, Toast.LENGTH_LONG);
-            mToast.show();
-        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -92,7 +84,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void makeMockSearchQueryWhileLoading() {
-        String partsQuery = "http://www.mocky.io/v2/5ae0c6d33200002a00510d2c";
+        String partsQuery = getString(R.string.url);
         Uri uri = Uri.parse(partsQuery);
         try {
             URL mUrl = new URL(uri.toString());
