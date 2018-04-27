@@ -12,5 +12,6 @@
     <string name="max_price">Maximum prijs</string>
     <string name="max_price_default">1000</string>
     <string name="no_internet">No internet, database has not been refreshed</string>
-    <string name="url">http://www.mocky.io/v2/5ae0c6d33200002a00510d2c</string>
+    <string name="url">http://www.mocky.io/v2/5ae2e872310000760c083c23</string>
+    <string name="search_bar">Search</string>
 </resources>

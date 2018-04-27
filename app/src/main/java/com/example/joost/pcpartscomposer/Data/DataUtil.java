@@ -4,11 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.example.joost.pcpartscomposer.MainActivity;
 import com.example.joost.pcpartscomposer.R;
 
 import org.json.JSONArray;
@@ -23,7 +25,8 @@ public class DataUtil {
     private static PartDataDbHelper dbHelper;
     private static final String TAG_DATABASE = "database";
     private static String maxPrice;
-    private static String where;
+    private static String where, searchText;
+    private static String[] whereArgs;
 
     public static void saveToDataBase(SQLiteDatabase db, String dataResponse){
         if(db == null){
@@ -39,7 +42,7 @@ public class DataUtil {
         try {
             String result = dataResponse.replace("\r", "").replace("\n)", "");
 
-             partArray = new JSONArray(result);
+            partArray = new JSONArray(result);
 
 
             for(int i = 0; i<partArray.length();i++ ){
@@ -75,6 +78,8 @@ public class DataUtil {
                 db.insert(PartDataContract.PartDataEntry.TABLE_NAME, null, c);
             }
 
+            long count = DatabaseUtils.queryNumEntries(db, PartDataContract.PartDataEntry.TABLE_NAME);
+            Log.v(TAG_DATABASE, "aantal in database: " + String.valueOf(count));
             Log.v(TAG_DATABASE, db.toString());
             db.setTransactionSuccessful();
         }
@@ -97,6 +102,14 @@ public class DataUtil {
         String sortBy = prefs.getString(context.getString(R.string.pref_sort_by_key), context.getString(R.string.pref_sort_by_default));
         maxPrice = String.valueOf(prefs.getInt(context.getString(R.string.max_price),Integer.valueOf(context.getString(R.string.max_price_default))));
         where = PartDataContract.PartDataEntry.COLUMN_PRICE + " <= " + maxPrice;
+        if(MainActivity.getSearch() != null){
+            searchText = "%" + MainActivity.getSearch() + "%";
+            whereArgs = new String[]{searchText};
+            where = where + " AND " + PartDataContract.PartDataEntry.COLUMN_NAME + " LIKE ?";
+        }else{
+            whereArgs = null;
+        }
+
         Cursor value;
         switch(sortBy){
             case "0":
@@ -122,11 +135,12 @@ public class DataUtil {
      * @return cursor of data
      */
     public static Cursor sortAlphabetical(){
+
         return mDb.query(
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
                 where,
-                null,
+                whereArgs,
                 null,
                 null,
                 PartDataContract.PartDataEntry.COLUMN_NAME
@@ -138,7 +152,7 @@ public class DataUtil {
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
                 where,
-                null,
+                whereArgs,
                 null,
                 null,
                 PartDataContract.PartDataEntry.COLUMN_PRICE+" DESC"
@@ -150,7 +164,7 @@ public class DataUtil {
                 PartDataContract.PartDataEntry.TABLE_NAME,
                 null,
                 where,
-                null,
+                whereArgs,
                 null,
                 null,
                 PartDataContract.PartDataEntry.COLUMN_PRICE+" ASC"
