@@ -14,4 +14,6 @@
     <string name="no_internet">No internet, database has not been refreshed</string>
     <string name="url">http://www.mocky.io/v2/5ae2e872310000760c083c23</string>
     <string name="search_bar">Search</string>
+    <string name="search_key">Search</string>
+    <string name="search_hint">Search by name</string>
 </resources>

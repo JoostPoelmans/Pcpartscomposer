@@ -85,6 +85,11 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
 
         setupSharedPreferences();
 
+        search = null;
+        if(savedInstanceState != null && savedInstanceState.containsKey(this.getString(R.string.search_key))){
+            search = savedInstanceState.getString(this.getString(R.string.search_key));
+        }
+
         PartDataDbHelper dbHelper = new PartDataDbHelper(this);
         mDb = dbHelper.getWritableDatabase();
 
@@ -198,6 +203,13 @@ public class MainActivity extends AppCompatActivity implements PartsListAdapter.
         });
         return true;
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putString(this.getString(R.string.search_key), search);
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
