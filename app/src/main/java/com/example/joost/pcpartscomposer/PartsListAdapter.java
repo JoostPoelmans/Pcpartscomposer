@@ -115,7 +115,7 @@ public class PartsListAdapter extends RecyclerView.Adapter<PartsListAdapter.Part
      * This method simply returns the number of items to display. It is used behind the scenes
      * to help layout our Views and for animations.
      *
-     * @return The number of items available in our forecast
+     * @return The number of items available in our cursor
      */
     @Override
     public int getItemCount() {
